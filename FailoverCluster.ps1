@@ -14,6 +14,7 @@ $global:ScriptName  = "FailoverClustering"
 $OSDClusterVariables = Get-OSDClusterVariables
 $ServerName          = $env:COMPUTERNAME
 $OSDClusNodes = $OSDClusterVariables.OSDClusterNodes
+$OSDClusNodeNames = $OSDClusNodes.name
 $OSDPriClusNode = $OSDClusNodes | Where-Object {$_.name -like "*N01"}
 $OSDSecClusNodes = $OSDClusNodes | Where-Object {$_.name -notlike "*N01"}
 $OSDClusNode        = $OSDClusNodes | Where-Object {$_.name -like $ServerName}
@@ -96,13 +97,13 @@ if ($ServerName -like "*N01*")
         {
                 $CanBuildCluster = $true
         }
-        if((Get-WindowsFeature -ComputerName $SecClusNodes.Name -Name Failover-Clustering).InstallState -eq 'Installed') # Check this works on more than one secondary node
+        if(Get-SecondaryNodeStatus -OSDSecClusNodes $OSDSecClusNodes)
         {
                 $FeatureInstalled = $true
         }
         if(($CanBuildCluster -eq $true -and $FeatureInstalled -eq $true))
         {
-            Test-Cluster -Node $OSDClusNodes -ReportName $ClusterValidationLog -ErrorAction Stop
+            Test-Cluster -Node $OSDClusNodeNames -ReportName $ClusterValidationLog -ErrorAction Stop
         }
     }
     catch
@@ -129,7 +130,7 @@ $ScriptBlockName = "Build Failover Cluster"
 
 try
 {
-    $ClusterBuild = New-Cluster -Name $OSDClusName -Node $OSDClusNodes -StaticAddress $OSDClusIP -NoStorage -ErrorAction Stop -war
+    $ClusterBuild = New-Cluster -Name $OSDClusName -Node $OSDClusNodeNames -StaticAddress $OSDClusIP -NoStorage -ErrorAction Stop
 }
 catch
 {
@@ -146,7 +147,7 @@ Start-Sleep -Seconds 30
 
 try
 {
-    $ClusterWitness = Get-Cluster -Name $OSDClusName | Set-ClusterQuorum -FileShareWitness $OSDClusFSWit -ErrorAction Stop
+    $ClusterWitness = Get-Cluster -Name $OSDClusName | Set-ClusterQuorum -FileShareWitness $OSDFSWitnessPath -ErrorAction Stop
 }
 catch
 {

@@ -41,7 +41,7 @@ function Get-WindowsFailoverCluster
     {
         try
         {
-            $cluster = get-cluster -Name $Name
+            $cluster = get-cluster -Name $Name -ErrorAction SilentlyContinue
             
             if ($cluster -ne $null)
             {
@@ -81,21 +81,21 @@ function Get-SecondaryNodeStatus
         {
             $secClusNodesReady = $true
 
-            foreach($OSDSecClusNode in $OSDSecClusNode)
+            foreach($OSDSecClusNode in $OSDSecClusNodes)
             { 
-                if("1" -eq "1"){
+                #if("1" -eq "1"){
                     if(-Not (Test-Connection -ComputerName $OSDSecClusNode.Name -Count 1 -ErrorAction SilentlyContinue))
                     {
                         $secClusNodesReady = $false
                     }
                     else
                         {
-                        if((Get-WindowsFeature -ComputerName $OSDSecClusNode.Name -Name Failover-Clustering).InstallState -ne 'Installed')
+                        if((Get-WindowsFeature -ComputerName $OSDSecClusNode.Name -Name Failover-Clustering -ErrorAction SilentlyContinue).InstallState -ne 'Installed')
                         {
                             $secClusNodesReady = $false
                         }
                     }
-                }
+                #}
             }
         }
         catch
@@ -115,20 +115,20 @@ function Get-OSDClusterVariables
 $OSDClusterVars = @"
     {
         "OSDCluster":  {
-                           "Name":  "CLUSC001",
-                           "IPAddress":  "1.1.1.1",
-                           "FSWitnessPath":  "\\\\CLUSW01\\Witness"
+                           "Name":  "CLUSC00",
+                           "IPAddress":  "10.10.20.12",
+                           "FSWitnessPath":  "\\\\dc01\\docs\\Witness"
                        },
         "OSDClusterNodes":  [
                                 {
-                                    "HBAddress":  "2.2.2.2",
+                                    "HBAddress":  "10.11.20.10",
                                     "Name":  "CLUSN01",
-                                    "IPAddress":  "1.1.1.2"
+                                    "IPAddress":  "10.10.20.10"
                                 },
                                 {
-                                    "HBAddress":  "2.2.2.3",
+                                    "HBAddress":  "10.11.20.11",
                                     "Name":  "CLUSN02",
-                                    "IPAddress":  "1.1.1.3"
+                                    "IPAddress":  "10.10.20.11"
                                 }
                             ]
     }
