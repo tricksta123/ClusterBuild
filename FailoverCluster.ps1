@@ -176,6 +176,27 @@ catch
 #######################################################################################################################
 
 
+#######################################################################################################################
+$ScriptBlockID   = "07"
+$ScriptBlockName = "Check Cluster Health"
+
+try
+{
+    if ((get-clustergroup -cluster $OSDClusName -Name "Cluster Group").State -ne "Online"){Exit "99$($ScriptBlockID)"}
+    if ((Get-ClusterResource -Cluster $OSDClusName -Name "Cluster IP Address").State -ne "Online"){Exit "99$($ScriptBlockID)"}
+    if ((Get-ClusterResource -Cluster $OSDClusName -Name "Cluster Name").State -ne "Online"){Exit "99$($ScriptBlockID)"}
+    if ((Get-ClusterResource -Cluster $OSDClusName -Name "File Share Witness").State -ne "Online"){Exit "99$($ScriptBlockID)"}
+    if ((Get-ClusterNode -Cluster $OSDClusName) | Where-Object{$_.state -ne "Up"}){Exit "99$($ScriptBlockID)"}
+
+}
+catch
+{
+    Exit "99$($ScriptBlockID)"
+}
+
+
+#######################################################################################################################
+
 #End of Script
 $ScriptBlockID   = "99"
 $ScriptBlockName = ""
