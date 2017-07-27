@@ -83,7 +83,7 @@ function Get-SecondaryNodeStatus
 
             foreach($OSDSecClusNode in $OSDSecClusNode)
             { 
-                if(1 = 1){
+                if("1" -eq "1"){
                     if(-Not (Test-Connection -ComputerName $OSDSecClusNode.Name -Count 1 -ErrorAction SilentlyContinue))
                     {
                         $secClusNodesReady = $false
