@@ -89,7 +89,7 @@ if ($ServerName -like "*N01*")
 {
     try
     {
-        if ((Test-Connection -CN $OSDClusName -BufferSize 16 -Count 1 -ErrorAction Stop -Quiet) -or (Get-Cluster -Name $OSDClusName))
+        if ((Test-Connection -CN $OSDClusName -BufferSize 16 -Count 1 -ErrorAction Stop -Quiet) -or (Get-Cluster -Name $OSDClusName -ErrorAction SilentlyContinue))
         {
                 $CanBuildCluster = $false
         }
